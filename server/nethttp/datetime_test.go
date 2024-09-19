@@ -5,19 +5,15 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-
-	"github.com/gin-gonic/gin"
 )
 
 func TestGetDatetime(t *testing.T) {
-	router := gin.Default()
-	router.GET("/datetime", GetDatetime)
 	t.Run("testing a GET request with JSON Accept header", func(t *testing.T) {
 		req := httptest.NewRequest("GET", "/datetime", nil)
 		req.Header.Set("Accept", "application/json")
 		rr := httptest.NewRecorder()
 
-		router.ServeHTTP(rr, req)
+		GetDatetime(rr, req)
 
 		if status := rr.Code; status != http.StatusOK {
 			t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
@@ -40,21 +36,25 @@ func TestGetDatetime(t *testing.T) {
 		req.Header.Set("Accept", "text/plain")
 		rr := httptest.NewRecorder()
 
-		router.ServeHTTP(rr, req)
+		GetDatetime(rr, req)
 
 		if status := rr.Code; status != http.StatusOK {
 			t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 		}
 
+		if contentType := rr.Header().Get("Content-Type"); contentType != "text/plain" {
+			t.Errorf("handler returned wrong content type: got %v want %v", contentType, "text/plain")
+		}
 	})
 
 	t.Run("testing a not-GET request", func(t *testing.T) {
-		req := httptest.NewRequest("DELETE", "/datetime", nil)
+		req := httptest.NewRequest("POST", "/datetime", nil)
 		rr := httptest.NewRecorder()
 
-		router.ServeHTTP(rr, req)
-		if status := rr.Code; status != http.StatusNotFound {
-			t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusNotFound)
+		GetDatetime(rr, req)
+
+		if status := rr.Code; status != http.StatusMethodNotAllowed {
+			t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusMethodNotAllowed)
 		}
 	})
 }

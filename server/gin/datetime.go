@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -10,13 +11,20 @@ import (
 
 func GetDatetime(c *gin.Context) {
 	t := time.Now().Format(time.RFC3339)
-	c.String(http.StatusOK, t)
+
+	acceptHeader := c.GetHeader("Accept")
+	if !strings.Contains(acceptHeader, "application/json") {
+		c.String(http.StatusOK, t)
+	}
+
+	c.JSON(http.StatusOK, map[string]string{"datetime": t})
+
 }
 
 func StartServer() error {
 	router := gin.Default()
 	router.GET("/datetime", GetDatetime)
-	return router.Run(":8000")
+	return router.Run(":9000")
 }
 
 func main() {
