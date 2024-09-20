@@ -19,12 +19,19 @@ func GetDatetime(w http.ResponseWriter, r *http.Request) {
 	acceptHeader := r.Header.Get("Accept")
 	if !strings.Contains(acceptHeader, "application/json") {
 		w.Header().Set("Content-Type", "text/plain")
-		w.Write([]byte(t))
+		_, err := w.Write([]byte(t))
+		if err != nil {
+			http.Error(w, "Failed to write response", http.StatusInternalServerError)
+			return
+		}
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{"datetime": t})
+	if err := json.NewEncoder(w).Encode(map[string]string{"datetime": t}); err != nil {
+		http.Error(w, "Failed to encode JSON response", http.StatusInternalServerError)
+		return
+	}
 }
 
 func StartServer() error {

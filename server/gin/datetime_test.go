@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -60,9 +61,17 @@ func TestGetDatetime(t *testing.T) {
 }
 
 func TestStartServer(t *testing.T) {
+	errChan := make(chan error, 1)
+
 	go func() {
 		if err := StartServer(); err != nil && err != http.ErrServerClosed {
-			t.Fatalf("error starting the server: %v", err)
+			errChan <- err
 		}
 	}()
+
+	select {
+	case err := <-errChan:
+		t.Fatalf("error starting the server: %v", err)
+	case <-time.After(2 * time.Second):
+	}
 }
