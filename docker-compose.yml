@@ -1,0 +1,18 @@
+version: "3.8"
+
+services:
+  nethttp-datetime:
+    build:
+      context: .
+      dockerfile: ./server/nethttp/Dockerfile
+
+    ports:
+      - "8000:8000"
+
+  gin-datetime:
+    build:
+      context: .
+      dockerfile: ./server/gin/Dockerfile
+
+    ports:
+      - "9000:9000"
