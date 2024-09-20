@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 )
 
 func TestGetDatetime(t *testing.T) {
@@ -60,9 +61,20 @@ func TestGetDatetime(t *testing.T) {
 }
 
 func TestStartServer(t *testing.T) {
+	errChan := make(chan error, 1)
+
 	go func() {
 		if err := StartServer(); err != nil && err != http.ErrServerClosed {
+			errChan <- err
+		}
+		close(errChan)
+	}()
+
+	select {
+	case err := <-errChan:
+		if err != nil {
 			t.Fatalf("error starting the server: %v", err)
 		}
-	}()
+	case <-time.After(2 * time.Second):
+	}
 }
