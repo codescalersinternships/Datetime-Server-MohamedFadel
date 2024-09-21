@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -11,8 +12,10 @@ import (
 )
 
 func TestGetDatetime(t *testing.T) {
+	gin.SetMode(gin.TestMode)
 	router := gin.Default()
 	router.GET("/datetime", GetDatetime)
+
 	t.Run("testing a GET request with JSON Accept header", func(t *testing.T) {
 		req := httptest.NewRequest("GET", "/datetime", nil)
 		req.Header.Set("Accept", "application/json")
@@ -24,15 +27,24 @@ func TestGetDatetime(t *testing.T) {
 			t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 		}
 
+		if contentType := rr.Header().Get("Content-Type"); !strings.Contains(contentType, "application/json") {
+			t.Errorf("handler returned wrong content type: got %v want application/json", contentType)
+		}
+
 		var response map[string]string
 		err := json.Unmarshal(rr.Body.Bytes(), &response)
 		if err != nil {
 			t.Errorf("Failed to parse JSON response: %v", err)
 		}
 
-		_, exist := response["datetime"]
+		datetime, exist := response["datetime"]
 		if !exist {
 			t.Errorf("JSON response does not contain 'datetime' key")
+		}
+
+		_, err = time.Parse(time.RFC3339, datetime)
+		if err != nil {
+			t.Errorf("Datetime is not in RFC3339 format: %v", err)
 		}
 	})
 
@@ -47,6 +59,14 @@ func TestGetDatetime(t *testing.T) {
 			t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 		}
 
+		if contentType := rr.Header().Get("Content-Type"); !strings.Contains(contentType, "text/plain") {
+			t.Errorf("handler returned wrong content type: got %v want text/plain", contentType)
+		}
+
+		_, err := time.Parse(time.RFC3339, strings.TrimSpace(rr.Body.String()))
+		if err != nil {
+			t.Errorf("Response body is not in RFC3339 format: %v", err)
+		}
 	})
 
 	t.Run("testing a not-GET request", func(t *testing.T) {

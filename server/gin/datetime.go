@@ -13,12 +13,11 @@ func GetDatetime(c *gin.Context) {
 	t := time.Now().Format(time.RFC3339)
 
 	acceptHeader := c.GetHeader("Accept")
-	if !strings.Contains(acceptHeader, "application/json") {
+	if strings.Contains(acceptHeader, "application/json") {
+		c.JSON(http.StatusOK, map[string]string{"datetime": t})
+	} else {
 		c.String(http.StatusOK, t)
 	}
-
-	c.JSON(http.StatusOK, map[string]string{"datetime": t})
-
 }
 
 func StartServer() error {
