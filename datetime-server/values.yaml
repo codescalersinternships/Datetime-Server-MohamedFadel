@@ -1,0 +1,21 @@
+gin:
+  replicaCount: 1
+  image:
+    repository: mohamedfadel01/datetime-images
+    tag: gin-image
+    pullPolicy: Always
+  service:
+    type: LoadBalancer
+    port: 87
+    targetPort: 9000
+
+nethttp:
+  replicaCount: 1
+  image:
+    repository: mohamedfadel01/datetime-images
+    tag: net-http-image
+    pullPolicy: Always
+  service:
+    type: LoadBalancer
+    port: 88
+    targetPort: 8000

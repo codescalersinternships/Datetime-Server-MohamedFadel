@@ -18,6 +18,4 @@ WORKDIR /root/
 
 COPY --from=builder /datetime-server .
 
-EXPOSE 8000
-
 CMD ["./datetime-server"]
