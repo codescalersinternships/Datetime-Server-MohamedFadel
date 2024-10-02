@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-nethttp
+spec:
+  replicas: {{ .Values.nethttp.replicaCount }}
+  selector:
+    matchLabels:
+      app: datetime-server-nethttp
+  template:
+    metadata:
+      labels:
+        app: datetime-server-nethttp
+    spec:
+      containers:
+      - name: datetime-server-nethttp
+        image: "{{ .Values.nethttp.image.repository }}:{{ .Values.nethttp.image.tag }}"
+        imagePullPolicy: {{ .Values.nethttp.image.pullPolicy }}
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: {{ .Values.nethttp.service.targetPort }}

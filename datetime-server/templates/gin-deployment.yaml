@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-gin
+spec:
+  replicas: {{ .Values.gin.replicaCount }}
+  selector:
+    matchLabels:
+      app: datetime-server-gin
+  template:
+    metadata:
+      labels:
+        app: datetime-server-gin
+    spec:
+      containers:
+      - name: datetime-server-gin
+        image: "{{ .Values.gin.image.repository }}:{{ .Values.gin.image.tag }}"
+        imagePullPolicy: {{ .Values.gin.image.pullPolicy }}
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: {{ .Values.gin.service.targetPort }}

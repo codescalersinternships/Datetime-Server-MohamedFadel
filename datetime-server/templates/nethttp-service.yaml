@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-nethttp
+spec:
+  type: {{ .Values.nethttp.service.type }}
+  selector:
+    app: datetime-server-nethttp
+  ports:
+  - port: {{ .Values.nethttp.service.port }}
+    targetPort: {{ .Values.nethttp.service.targetPort }}
